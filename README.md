@@ -79,8 +79,6 @@ proj/
 │   ├── tasks.html        # Zarządzanie zadaniami
 │   ├── calendar.html     # Kalendarz
 │   └── notes.html        # Notatki
-└── .github/
-    └── copilot-instructions.md
 ```
 
 ## Jak używać
