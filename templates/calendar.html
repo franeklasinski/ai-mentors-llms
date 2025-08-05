@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalendarz - Aplikacja Mentorska</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="main-title">Kalendarz</h1>
+            <p class="subtitle">Planuj swój czas i śledź postępy</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <a href="/" class="nav-link">
+                <i class="fas fa-home"></i>
+                Strona Główna
+            </a>
+            <a href="/tasks" class="nav-link">
+                <i class="fas fa-tasks"></i>
+                Zadania
+            </a>
+            <a href="/calendar" class="nav-link active">
+                <i class="fas fa-calendar"></i>
+                Kalendarz
+            </a>
+            <a href="/notes" class="nav-link">
+                <i class="fas fa-sticky-note"></i>
+                Notatki
+            </a>
+        </nav>
+
+        <!-- Panel sterowania kalendarza -->
+        <div class="calendar-controls">
+            <div class="calendar-nav">
+                <button class="nav-btn" id="prevMonth">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h2 class="current-month" id="currentMonth">Sierpień 2025</h2>
+                <button class="nav-btn" id="nextMonth">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="calendar-actions">
+                <button class="action-btn primary" id="openEventModal">
+                    <i class="fas fa-plus"></i>
+                    Nowe wydarzenie
+                </button>
+                <button class="action-btn secondary" id="todayView">
+                    <i class="fas fa-calendar-day"></i>
+                    Dzisiaj
+                </button>
+            </div>
+        </div>
+
+        <!-- Kalendarz -->
+        <div class="calendar-container">
+            <div class="calendar-grid">
+                <!-- Nagłówek dni tygodnia -->
+                <div class="calendar-header">
+                    <div class="day-header">Pon</div>
+                    <div class="day-header">Wto</div>
+                    <div class="day-header">Śro</div>
+                    <div class="day-header">Czw</div>
+                    <div class="day-header">Pią</div>
+                    <div class="day-header">Sob</div>
+                    <div class="day-header">Nie</div>
+                </div>
+                
+                <!-- Dni kalendarza -->
+                <div class="calendar-days" id="calendarDays">
+                    <!-- Dni będą generowane przez JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Panel boczny z wydarzeniami -->
+            <div class="events-sidebar">
+                <h3>Wydarzenia</h3>
+                <div class="events-list" id="eventsList">
+                    <!-- Wydarzenia będą ładowane dynamicznie -->
+                </div>
+                
+                <div class="upcoming-tasks">
+                    <h4>Najbliższe zadania</h4>
+                    <div class="tasks-preview" id="tasksPreview">
+                        <!-- Zadania będą ładowane dynamicznie -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal nowego wydarzenia -->
+    <div class="modal-overlay" id="eventModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Nowe wydarzenie</h3>
+                <button class="close-btn" id="closeEventModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <div class="form-group">
+                        <label for="eventTitle">Tytuł wydarzenia *</label>
+                        <input type="text" id="eventTitle" name="title" required placeholder="Np. Spotkanie z mentorem">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventDescription">Opis</label>
+                        <textarea id="eventDescription" name="description" rows="3" placeholder="Szczegóły wydarzenia..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventDate">Data</label>
+                            <input type="date" id="eventDate" name="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="eventTime">Godzina</label>
+                            <input type="time" id="eventTime" name="time">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventType">Typ wydarzenia</label>
+                        <select id="eventType" name="type">
+                            <option value="meeting">Spotkanie</option>
+                            <option value="task">Zadanie</option>
+                            <option value="reminder">Przypomnienie</option>
+                            <option value="personal">Osobiste</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="action-btn secondary" id="cancelEventModal">Anuluj</button>
+                <button type="submit" form="eventForm" class="action-btn primary">
+                    <i class="fas fa-save"></i>
+                    Dodaj wydarzenie
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+</body>
+</html>

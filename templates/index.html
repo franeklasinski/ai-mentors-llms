@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikacja Mentorska - Twój osobisty zespół wsparcia 24/7</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="main-title">Aplikacja Mentorska</h1>
+            <p class="subtitle">Twój osobisty zespół wsparcia 24/7</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <a href="/" class="nav-link active">
+                <i class="fas fa-home"></i>
+                Strona Główna
+            </a>
+            <a href="/tasks" class="nav-link">
+                <i class="fas fa-tasks"></i>
+                Zadania
+            </a>
+            <!-- Tymczasowo ukryte: kalendarz i notatki -->
+            <!--
+            <a href="/calendar" class="nav-link">
+                <i class="fas fa-calendar"></i>
+                Kalendarz
+            </a>
+            <a href="/notes" class="nav-link">
+                <i class="fas fa-sticky-note"></i>
+                Notatki
+            </a>
+            -->
+        </nav>
+
+        <!-- Sekcja opisowa -->
+        <section class="description-section">
+            <div class="description-card">
+                <h2>Jak to działa?</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Wybierz swojego mentora</h3>
+                            <p>Przeglądaj profilerz 4 unikalnych mentorów i znajdź tego, który najlepiej pasuje do Twojego stylu i potrzeb.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Rozpocznij rozmowę</h3>
+                            <p>Pisz jak z chatbotem - zadawaj pytania, dziel się problemami, planuj cele. Twój mentor odpowie zgodnie ze swoją osobowością.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Realizuj zadania</h3>
+                            <p>Twórz konkretne zadania i cele. Śledź swoje postępy i systematycznie realizuj plany.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Rozwijaj się</h3>
+                            <p>Korzystaj z narzędzi i znajdź swój rytm rozwoju. Każda sesja to krok naprzód.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sekcja wyboru mentorów -->
+        <section class="mentors-section">
+            <h2 class="section-title">Wybierz swojego mentora</h2>
+            <div class="mentor-carousel">
+                <button class="carousel-btn prev-btn" onclick="previousMentor()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="mentor-cards-container">
+                    <div class="mentor-cards" id="mentorCards">
+                        {% for mentor in mentors %}
+                        <div class="mentor-card" data-mentor-id="{{ mentor.id }}">
+                            <div class="mentor-image">
+                                {% if mentor.name == 'Anna' %}
+                                    <img src="{{ url_for('static', filename='images/anna.jpg') }}" alt="{{ mentor.name }}">
+                                {% elif mentor.name == 'Marek' %}
+                                    <img src="{{ url_for('static', filename='images/marek.jpg') }}" alt="{{ mentor.name }}">
+                                {% elif mentor.name == 'Kasia' %}
+                                    <img src="{{ url_for('static', filename='images/kasia.jpg') }}" alt="{{ mentor.name }}">
+                                {% elif mentor.name == 'David' %}
+                                    <img src="{{ url_for('static', filename='images/david.jpg') }}" alt="{{ mentor.name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/placeholder-male.svg') }}" alt="{{ mentor.name }}">
+                                {% endif %}
+                                <div class="mentor-badge">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="mentor-info">
+                                <h3 class="mentor-name">{{ mentor.name }}</h3>
+                                <p class="mentor-description">{{ mentor.description }}</p>
+                                <div class="mentor-personality">
+                                    <p>{{ mentor.personality[:150] }}{% if mentor.personality|length > 150 %}...{% endif %}</p>
+                                </div>
+                                <button class="chat-btn" onclick="startChat({{ mentor.id }})">
+                                    <i class="fas fa-comments"></i>
+                                    Rozpocznij rozmowę
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <button class="carousel-btn next-btn" onclick="nextMentor()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- Wskaźniki -->
+            <div class="carousel-indicators">
+                {% for mentor in mentors %}
+                <div class="indicator {% if loop.index0 == 0 %}active{% endif %}" onclick="goToMentor({{ loop.index0 }})"></div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Sekcja funkcjonalności -->
+        <section class="features-section">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Inteligentne rozmowy</h3>
+                    <p>Każdy mentor ma unikalny styl i podejście do motywacji i rozwoju.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <h3>Zarządzanie zadaniami</h3>
+                    <p>Twórz, organizuj i śledź swoje zadania. Systematyczny postęp w realizacji celów.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Przypomnienia</h3>
+                    <p>Zarządzaj terminami i priorytetami. Nie przegap ważnych zadań i celów.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Śledzenie postępów</h3>
+                    <p>Wizualizacja Twoich osiągnięć i postępów w realizacji celów.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

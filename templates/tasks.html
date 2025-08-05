@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zadania - Aplikacja Mentorska</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tasks.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="main-title">Zarządzanie Zadaniami</h1>
+            <p class="subtitle">Organizuj swoje cele i śledź postępy</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <a href="/" class="nav-link">
+                <i class="fas fa-home"></i>
+                Strona Główna
+            </a>
+            <a href="/tasks" class="nav-link active">
+                <i class="fas fa-tasks"></i>
+                Zadania
+            </a>
+            <!-- Tymczasowo ukryte: kalendarz i notatki -->
+            <!--
+            <a href="/calendar" class="nav-link">
+                <i class="fas fa-calendar"></i>
+                Kalendarz
+            </a>
+            <a href="/notes" class="nav-link">
+                <i class="fas fa-sticky-note"></i>
+                Notatki
+            </a>
+            -->
+        </nav>
+
+        <!-- Panel sterowania -->
+        <div class="control-panel">
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalTasks">0</span>
+                        <span class="stat-label">Wszystkich zadań</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon active">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="pendingTasks">0</span>
+                        <span class="stat-label">W trakcie</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="completedTasks">0</span>
+                        <span class="stat-label">Ukończonych</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon urgent">
+                        <i class="fas fa-exclamation"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="urgentTasks">0</span>
+                        <span class="stat-label">Pilnych</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="task-actions">
+                <button class="action-btn primary" onclick="openNewTaskModal()">
+                    <i class="fas fa-plus"></i>
+                    Nowe zadanie
+                </button>
+                <div class="filter-dropdown">
+                    <button class="action-btn secondary" onclick="toggleFilterDropdown()">
+                        <i class="fas fa-filter"></i>
+                        Filtruj
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content" id="filterDropdown">
+                        <a href="#" onclick="filterTasks('all')">Wszystkie</a>
+                        <a href="#" onclick="filterTasks('pending')">W trakcie</a>
+                        <a href="#" onclick="filterTasks('completed')">Ukończone</a>
+                        <a href="#" onclick="filterTasks('urgent')">Pilne</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista zadań -->
+        <div class="tasks-container">
+            <div class="tasks-header">
+                <h2>Twoje zadania</h2>
+                <div class="view-toggles">
+                    <button class="view-btn active" onclick="setView('list')" data-view="list">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="view-btn" onclick="setView('grid')" data-view="grid">
+                        <i class="fas fa-th"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tasks-list" id="tasksList">
+                <!-- Zadania będą ładowane dynamicznie -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>Brak zadań</h3>
+                    <p>Rozpocznij organizowanie swojego życia! Dodaj pierwsze zadanie.</p>
+                    <button class="action-btn primary" onclick="openNewTaskModal()">
+                        <i class="fas fa-plus"></i>
+                        Dodaj zadanie
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal nowego zadania -->
+    <div class="modal-overlay" id="newTaskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Nowe zadanie</h3>
+                <button class="close-btn" onclick="closeNewTaskModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="newTaskForm">
+                    <div class="form-group">
+                        <label for="taskTitle">Tytuł zadania *</label>
+                        <input type="text" id="taskTitle" name="title" required maxlength="200" placeholder="Np. Ukończyć raport miesięczny">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskDescription">Opis</label>
+                        <textarea id="taskDescription" name="description" rows="3" maxlength="500" placeholder="Dodaj szczegóły zadania..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskDueDate">Termin wykonania</label>
+                            <input type="datetime-local" id="taskDueDate" name="due_date">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="taskPriority">Priorytet</label>
+                            <select id="taskPriority" name="priority">
+                                <option value="low">Niski</option>
+                                <option value="medium" selected>Średni</option>
+                                <option value="high">Wysoki</option>
+                                <option value="urgent">Pilny</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskMentor">Mentor</label>
+                        <select id="taskMentor" name="mentor_id">
+                            <option value="">Wybierz mentora (opcjonalnie)</option>
+                            <option value="1">Anna - Wspierająca coach</option>
+                            <option value="2">Marek - Trener biznesowy</option>
+                            <option value="3">Kasia - Motywatorka fitness</option>
+                            <option value="4">David - Bezkompromisowy coach</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="action-btn secondary" onclick="closeNewTaskModal()">Anuluj</button>
+                <button type="submit" form="newTaskForm" class="action-btn primary">
+                    <i class="fas fa-save"></i>
+                    Dodaj zadanie
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal edycji zadania -->
+    <div class="modal-overlay" id="editTaskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edytuj zadanie</h3>
+                <button class="close-btn" onclick="closeEditTaskModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editTaskForm">
+                    <input type="hidden" id="editTaskId">
+                    <!-- Identyczne pola jak w modal nowego zadania -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="action-btn danger" onclick="deleteTask()">
+                    <i class="fas fa-trash"></i>
+                    Usuń
+                </button>
+                <button type="button" class="action-btn secondary" onclick="closeEditTaskModal()">Anuluj</button>
+                <button type="submit" form="editTaskForm" class="action-btn primary">
+                    <i class="fas fa-save"></i>
+                    Zapisz zmiany
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
+</body>
+</html>

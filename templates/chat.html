@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat z {{ mentor.name }} - Aplikacja Mentorska</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% set placeholder = '/static/images/placeholder-female.svg' if mentor.name in ['Anna', 'Kasia'] else '/static/images/placeholder-male.svg' %}
+    <div class="chat-container">
+        <!-- Header czatu -->
+        <header class="chat-header">
+            <div class="mentor-info-header">
+                <a href="/" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="mentor-avatar">
+                    <img src="{{ mentor.image_url }}" alt="{{ mentor.name }}" onerror="this.src='{{ placeholder }}'">
+                    <div class="status-indicator online"></div>
+                </div>
+                <div class="mentor-details">
+                    <h2 class="mentor-name">{{ mentor.name }}</h2>
+                    <p class="mentor-status">{{ mentor.description }}</p>
+                </div>
+            </div>
+            <div class="chat-actions">
+                <button class="action-btn" onclick="clearChat()" title="Wyczyść czat">
+                    <i class="fas fa-broom"></i>
+                </button>
+                <button class="action-btn" onclick="exportChat()" title="Eksportuj rozmowę">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Obszar wiadomości -->
+        <div class="chat-messages" id="chatMessages">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="message {{ 'user' if message.is_user else 'mentor' }}">
+                    <div class="message-avatar">
+                        {% if message.is_user %}
+                            <i class="fas fa-user"></i>
+                        {% else %}
+                            <img src="{{ mentor.image_url }}" alt="{{ mentor.name }}" onerror="this.src='{{ placeholder }}'">
+                        {% endif %}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            {{ message.message }}
+                        </div>
+                        <div class="message-time">
+                            {{ message.timestamp.strftime('%H:%M') }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="welcome-message">
+                    <div class="welcome-avatar">
+                        <img src="{{ mentor.image_url }}" alt="{{ mentor.name }}" onerror="this.src='{{ placeholder }}'">
+                    </div>
+                    <h3>Witaj! Jestem {{ mentor.name }}</h3>
+                    <p>{{ mentor.personality[:200] }}...</p>
+                    <p class="welcome-prompt">Jak mogę Ci dzisiaj pomóc?</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Panel wprowadzania wiadomości -->
+        <div class="chat-input-panel">
+            <div class="input-container">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Napisz wiadomość do {{ mentor.name }}..."
+                    rows="1"
+                    maxlength="1000"
+                ></textarea>
+                <button id="sendButton" onclick="sendMessage()" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="input-tools">
+                <button class="tool-btn" onclick="insertSuggestion('Jak mogę poprawić swoją produktywność?')" title="Sugestia">
+                    <i class="fas fa-lightbulb"></i>
+                    Produktywność
+                </button>
+                <button class="tool-btn" onclick="insertSuggestion('Pomóż mi zaplanować dzień')" title="Sugestia">
+                    <i class="fas fa-calendar-day"></i>
+                    Planowanie
+                </button>
+                <button class="tool-btn" onclick="insertSuggestion('Mam problem z motywacją')" title="Sugestia">
+                    <i class="fas fa-fire"></i>
+                    Motywacja
+                </button>
+                <button class="tool-btn" onclick="insertSuggestion('Chcę wyznaczyć nowe cele')" title="Sugestia">
+                    <i class="fas fa-target"></i>
+                    Cele
+                </button>
+            </div>
+            <div class="character-count">
+                <span id="charCount">0</span>/1000
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <span>{{ mentor.name }} pisze...</span>
+        </div>
+    </div>
+
+    <!-- Sidebar z zadaniami (opcjonalnie) -->
+    <div class="chat-sidebar" id="chatSidebar">
+        <div class="sidebar-header">
+            <h3>Szybkie zadania</h3>
+            <button class="close-sidebar" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-content">
+            <div class="quick-tasks" id="quickTasks">
+                <!-- Zadania będą ładowane dynamicznie -->
+            </div>
+            <button class="new-task-btn" onclick="createQuickTask()">
+                <i class="fas fa-plus"></i>
+                Nowe zadanie
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Przekazanie danych mentora do JavaScript
+        const MENTOR_ID = {{ mentor.id }};
+        const MENTOR_NAME = "{{ mentor.name }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>

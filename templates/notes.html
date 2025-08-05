@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notatki - Aplikacja Mentorska</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notes.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="main-title">Notatki</h1>
+            <p class="subtitle">Zapisuj swoje przemyślenia i postępy</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <a href="/" class="nav-link">
+                <i class="fas fa-home"></i>
+                Strona Główna
+            </a>
+            <a href="/tasks" class="nav-link">
+                <i class="fas fa-tasks"></i>
+                Zadania
+            </a>
+            <a href="/calendar" class="nav-link">
+                <i class="fas fa-calendar"></i>
+                Kalendarz
+            </a>
+            <a href="/notes" class="nav-link active">
+                <i class="fas fa-sticky-note"></i>
+                Notatki
+            </a>
+        </nav>
+
+        <!-- Panel sterowania notatek -->
+        <div class="notes-controls">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Szukaj w notatkach..." onkeyup="searchNotes()">
+                </div>
+            </div>
+            
+            <div class="notes-actions">
+                <button class="action-btn primary" id="openNewNoteModal">
+                    <i class="fas fa-plus"></i>
+                    Nowa notatka
+                </button>
+                <div class="view-options">
+                    <button class="view-btn active" data-view="grid">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" data-view="list">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista notatek -->
+        <div class="notes-container">
+            <div class="notes-grid" id="notesGrid">
+                <!-- Notatki będą ładowane dynamicznie -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">
+                        <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <h3>Brak notatek</h3>
+                    <p>Rozpocznij dokumentowanie swojej podróży rozwoju osobistego!</p>
+                    <button class="action-btn primary" onclick="openNewNoteModal()">
+                        <i class="fas fa-plus"></i>
+                        Dodaj pierwszą notatkę
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal nowej notatki -->
+    <div class="modal-overlay" id="noteModal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nowa notatka</h3>
+                <button class="close-btn" id="closeNoteModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="noteForm">
+                    <input type="hidden" id="noteId">
+                    <div class="form-group">
+                        <label for="noteTitle">Tytuł notatki *</label>
+                        <input type="text" id="noteTitle" name="title" required placeholder="Np. Refleksje po rozmowie z Anną">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="noteContent">Treść</label>
+                        <div class="editor-toolbar">
+                            <button type="button" class="editor-btn" onclick="formatText('bold')">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" class="editor-btn" onclick="formatText('italic')">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" class="editor-btn" onclick="formatText('underline')">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <span class="separator"></span>
+                            <button type="button" class="editor-btn" onclick="insertList()">
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button type="button" class="editor-btn" onclick="insertTimestamp()">
+                                <i class="fas fa-clock"></i>
+                            </button>
+                        </div>
+                        <textarea id="noteContent" name="content" rows="15" placeholder="Zapisz swoje przemyślenia, cele, postępy..."></textarea>
+                        <div class="character-counter">
+                            <span id="charCounter">0</span> znaków
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="noteCategory">Kategoria</label>
+                            <select id="noteCategory" name="category">
+                                <option value="general">Ogólne</option>
+                                <option value="goals">Cele</option>
+                                <option value="progress">Postępy</option>
+                                <option value="insights">Przemyślenia</option>
+                                <option value="mentor">Porady mentorów</option>
+                                <option value="personal">Osobiste</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="noteTags">Tagi</label>
+                            <input type="text" id="noteTags" name="tags" placeholder="motywacja, cele, rozwój (oddziel przecinkami)">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="action-btn danger" id="deleteBtn" onclick="deleteNote()" style="display: none;">
+                    <i class="fas fa-trash"></i>
+                    Usuń
+                </button>
+                <button type="button" class="action-btn secondary" id="cancelNoteModal">Anuluj</button>
+                <button type="submit" form="noteForm" class="action-btn primary">
+                    <i class="fas fa-save"></i>
+                    Zapisz notatkę
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/notes.js') }}"></script>
+</body>
+</html>
