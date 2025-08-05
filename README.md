@@ -129,4 +129,4 @@ Jeśli masz pytania lub sugestie, skontaktuj się z twórcą projektu.
 
 ---
 
-**Franciszek Łasiński projekt wykonanhy z pomocą github copilot**
+**Franciszek Łasiński projekt wykonany z pomocą github copilot**
